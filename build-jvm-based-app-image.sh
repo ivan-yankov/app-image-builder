@@ -4,6 +4,7 @@ project_dir=$1
 
 if !(test -d "../bash"); then
   git clone https://github.com/ivan-yankov/bash.git
+  mv bash ../
 fi
 
 source ../bash/load.sh

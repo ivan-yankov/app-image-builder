@@ -12,8 +12,8 @@ source $project_dir/app-image.sh
 
 app_dir=AppDir
 rm -rf $app_dir
-mkdir ./$app_dir
-mkdir ./$app_dir/jar
+mkdir $app_dir
+mkdir $app_dir/jar
 
 cp resources/AppRun $app_dir/AppRun
 sed -i "s/###JVM_XMS###/$JVM_XMS/" $app_dir/AppRun

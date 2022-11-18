@@ -20,6 +20,8 @@ sed -i "s/###JVM_XMS###/$JVM_XMS/" $app_dir/AppRun
 sed -i "s/###JVM_XMX###/$JVM_XMX/" $app_dir/AppRun
 sed -i "s/###MAIN_CLASS###/$MAIN_CLASS/" $app_dir/AppRun
 sed -i "s/###PARAMETERS###/$PARAMETERS/" $app_dir/AppRun
+sed -i "s/###BEFORE###/$BEFORE/" $app_dir/AppRun
+sed -i "s/###AFTER###/$AFTER/" $app_dir/AppRun
 
 cp resources/template.desktop $app_dir/$APPLICATION_NAME.desktop
 sed -i "s/###APPLICATION_NAME###/$APPLICATION_NAME/" $app_dir/$APPLICATION_NAME.desktop

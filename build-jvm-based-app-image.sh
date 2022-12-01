@@ -1,63 +1,74 @@
-# https://www.booleanworld.com/creating-linux-apps-run-anywhere-appimage/
+# https://www.booleanworld.com/creating-linux-apps-run-anywhere-appimage
+function build-jvm-based-app-image {
+  is-defined $1 && is-defined $2 && is-defined $3 || return 1
 
-project_dir=$1
+  ini_file=$1
+  resource_dir=$2
+  cache_dir=$3
 
-if !(test -d "../bash"); then
-  git clone https://github.com/ivan-yankov/bash.git
-  mv bash ../
-fi
+  project_dir=$(dirname $ini_file)
 
-source ../bash/load.sh
-source $project_dir/app-image.sh
+  app_dir=$cache_dir/AppDir
 
-app_dir=AppDir
-rm -rf $app_dir
-mkdir $app_dir
-mkdir $app_dir/jar
+  mkdir -p $cache_dir
+    
+  jvm_version=$(get-ini-value JvmVersion $ini_file)
+  jvm_xms=$(get-ini-value JvmXms $ini_file)
+  jvm_xmx=$(get-ini-value JvmXmx $ini_file)
+  application_jars=$(get-ini-value ApplicationJars $ini_file)
+  main_class=$(get-ini-value MainClass $ini_file)
+  application_name=$(get-ini-value ApplicationName $ini_file)
+  parameters=$(get-ini-value Parameters $ini_file)
+  is_terminal_application=$(get-ini-value IsTerminalApplication $ini_file)
+  icon_file_ini=$(get-ini-value IconFile $ini_file)
+  before=$(get-ini-value Before $ini_file)
+  after=$(get-ini-value After $ini_file)
 
-cp resources/AppRun $app_dir/AppRun
-sed -i "s/###JVM_XMS###/$JVM_XMS/" $app_dir/AppRun
-sed -i "s/###JVM_XMX###/$JVM_XMX/" $app_dir/AppRun
-sed -i "s/###MAIN_CLASS###/$MAIN_CLASS/" $app_dir/AppRun
-sed -i "s/###PARAMETERS###/$PARAMETERS/" $app_dir/AppRun
-sed -i "s/###BEFORE###/$BEFORE/" $app_dir/AppRun
-sed -i "s/###AFTER###/$AFTER/" $app_dir/AppRun
+  icon_file=$resource_dir/icon.png
+  is-defined $icon_file_ini && icon_file=$project_dir/$icon_file_ini
 
-cp resources/template.desktop $app_dir/$APPLICATION_NAME.desktop
-sed -i "s/###APPLICATION_NAME###/$APPLICATION_NAME/" $app_dir/$APPLICATION_NAME.desktop
-sed -i "s/###IS_TERMINAL_APPLICATION###/$IS_TERMINAL_APPLICATION/" $app_dir/$APPLICATION_NAME.desktop
+  rm -rf $app_dir
+  mkdir $app_dir
+  mkdir $app_dir/jar
 
-if [ -z "$ICON_FILE" ]; then
-  cp resources/icon.png $app_dir/icon.png
-else
-  cp $project_dir/$ICON_FILE $app_dir/icon.png
-fi
+  cp $resource_dir/AppRun $app_dir/AppRun
+  sed -i "s/###JVM_XMS###/$jvm_xms/" $app_dir/AppRun
+  sed -i "s/###JVM_XMX###/$jvm_xmx/" $app_dir/AppRun
+  sed -i "s/###MAIN_CLASS###/$main_class/" $app_dir/AppRun
+  sed -i "s/###PARAMETERS###/$parameters/" $app_dir/AppRun
+  sed -i "s/###BEFORE###/$before/" $app_dir/AppRun
+  sed -i "s/###AFTER###/$after/" $app_dir/AppRun
+  
+  cp $resource_dir/template.desktop $app_dir/$application_name.desktop
+  sed -i "s/###APPLICATION_NAME###/$application_name/" $app_dir/$application_name.desktop
+  sed -i "s/###IS_TERMINAL_APPLICATION###/$is_terminal_application/" $app_dir/$application_name.desktop
+  
+  cp $icon_file $app_dir/icon.png
+  
+  cp $project_dir/$application_jars $app_dir/jar
+  
+  # download jre if necessary
+  local jre_archive=$cache_dir/jre-$jvm_version.tar.gz
+  if [ ! -f $jre_archive ]; then
+    java-download jre $jvm_version $cache_dir
+  fi
 
-for f in ${JARS[@]}; do
-  cp -r $project_dir/$f $app_dir/jar
-done
-
-# download jre if necessary
-f=jre-$JVM_VERSION.tar.gz
-if !(test -f "$f"); then
-  java-download jre $JVM_VERSION
-fi
-
-untargz $f
-mv $(targz-root $f) $app_dir/jre
-
-# detect machine's architecture
-export ARCH=$(uname -m)
-
-# get the missing tools if necessary
-if [ ! -x ./appimagetool-$ARCH.AppImage ]; then
-  curl -L -o ./appimagetool-$ARCH.AppImage https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-$ARCH.AppImage
-  chmod a+x ./appimagetool-$ARCH.AppImage 
-fi
-
-# build app-image
-./appimagetool-$ARCH.AppImage $app_dir
-
-mv $APPLICATION_NAME-$ARCH.AppImage $project_dir/$APPLICATION_NAME.AppImage
-
-rm -rf $app_dir
+  java-extract $jre_archive  
+  mv $cache_dir/jre-$jvm_version $app_dir/jre
+  
+  # detect machine's architecture
+  arch=$(uname -m)
+  
+  # get the missing tools if necessary
+  if [ ! -f $cache_dir/appimagetool-$arch.AppImage ]; then
+    curl -L -o $cache_dir/appimagetool-$arch.AppImage https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-$arch.AppImage
+    chmod a+x $cache_dir/appimagetool-$arch.AppImage 
+  fi
+  
+  # build app-image
+  $cache_dir/appimagetool-$arch.AppImage $app_dir
+  
+  mv $application_name-$arch.AppImage $project_dir/$application_name.AppImage
+  
+  rm -rf $app_dir
+}

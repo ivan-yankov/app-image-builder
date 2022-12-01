@@ -69,6 +69,4 @@ function build-jvm-based-app-image {
   $cache_dir/appimagetool-$arch.AppImage $app_dir
   
   mv $application_name-$arch.AppImage $project_dir/$application_name.AppImage
-  
-  rm -rf $app_dir
 }

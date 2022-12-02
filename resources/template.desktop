@@ -1,7 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=###APPLICATION_NAME###
-Icon=icon
-Categories=Utility
-Terminal=###IS_TERMINAL_APPLICATION###
-X-AppImage-Version=0.1.09

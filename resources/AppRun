@@ -1,6 +1,0 @@
-#!/bin/sh
-
-cd "$(dirname "$0")"
-###BEFORE###
-./jre/bin/java -Xms###JVM_XMS### -Xmx###JVM_XMX### -Dfile.encoding=UTF-8 -classpath "jar/*" ###MAIN_CLASS### ###PARAMETERS### "$@"
-###AFTER###

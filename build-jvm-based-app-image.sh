@@ -13,17 +13,17 @@ function build-jvm-based-app-image {
 
   mkdir -p $cache_dir
     
-  jvm_version=$(get-ini-value JvmVersion $ini_file)
-  jvm_xms=$(get-ini-value JvmXms $ini_file)
-  jvm_xmx=$(get-ini-value JvmXmx $ini_file)
-  application_jars=$(get-ini-value ApplicationJars $ini_file)
-  main_class=$(get-ini-value MainClass $ini_file)
-  parameters=$(get-ini-value Parameters $ini_file)
-  application_name=$(get-ini-value ApplicationName $ini_file)
-  is_terminal_application=$(get-ini-value IsTerminalApplication $ini_file)
-  icon_file_ini=$(get-ini-value IconFile $ini_file)
-  before=$(get-ini-value Before $ini_file)
-  after=$(get-ini-value After $ini_file)
+  jvm_version=$(text-get-ini-value JvmVersion $ini_file)
+  jvm_xms=$(text-get-ini-value JvmXms $ini_file)
+  jvm_xmx=$(text-get-ini-value JvmXmx $ini_file)
+  application_jars=$(text-get-ini-value ApplicationJars $ini_file)
+  main_class=$(text-get-ini-value MainClass $ini_file)
+  parameters=$(text-get-ini-value Parameters $ini_file)
+  application_name=$(text-get-ini-value ApplicationName $ini_file)
+  is_terminal_application=$(text-get-ini-value IsTerminalApplication $ini_file)
+  icon_file_ini=$(text-get-ini-value IconFile $ini_file)
+  before=$(text-get-ini-value Before $ini_file)
+  after=$(text-get-ini-value After $ini_file)
 
   icon_file=$resource_dir/icon.png
   (is-defined $icon_file_ini > /dev/null) && icon_file=$project_dir/$icon_file_ini
